@@ -1,17 +1,17 @@
 # Geometry Distributions
 
-### [Project Page](https://1zb.github.io/GeomDist/) | [Paper (arXiv)](https://arxiv.org/abs/2411.16076)
+This repoitory is a refractory of the code of GeometryDistributions https://1zb.github.io/GeomDist/. Credit to Biao Zangh for the original code and the wonderful work.
 
-### :bullettrain_front: Training
+### :bullettrain_front: Training 
 
 ```
-torchrun --nproc_per_node=4 main.py --blr 5e-7 --output_dir output/loong --log_dir output/loong --data_path shapes/loong.obj
+torchrun --nproc_per_node=1 main.py --blr 5e-7 --output_dir output/loong --log_dir output/loong --target ../Matching-Flowing-Distributions/data/horse_04.ply --inference --epochs 501 --num_points_inference 10000 --num-step 64
 ```
 
 ### :balloon: Inference
 
 ```
-python infer.py --pth output/loong/checkpoint-999.pth --target Gaussian --num-steps 64 --output samples/loong --N 10000000
+torchrun --nproc_per_node=1 main.py --blr 5e-7 --output_dir output/loong --log_dir output/loong --target ../Matching-Flowing-Distributions/data/horse_04.ply --train --epochs 501
 ```
 
 ### :floppy_disk: Datasets
