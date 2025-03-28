@@ -52,7 +52,10 @@ def get_inline_arg():
                         help='Name of model to train')
     parser.add_argument('--depth', default=6, type=int, metavar='MODEL')
     
+    parser.add_argument('--target', default='shapes/Jellyfish_lamp_part_A__B_normalized.obj', type=str,
+                        help='dataset path')
 
+    parser.add_argument('--distribution', default='Gaussian', type=str, )
 
     # Optimizer parameters
     parser.add_argument('--clip_grad', type=float, default=None, metavar='NORM',
@@ -72,9 +75,6 @@ def get_inline_arg():
                         help='epochs to warmup LR')
 
     # Dataset parameters
-    parser.add_argument('--target', default='Gaussian', type=str, )
-    parser.add_argument('--data_path', default='shapes/Jellyfish_lamp_part_A__B_normalized.obj', type=str,
-                        help='dataset path')
     parser.add_argument('--intermediate', action='store_true')
 
     parser.add_argument('--texture_path', default=None, type=str,
@@ -134,7 +134,7 @@ def setup_data_loader(args):
         data_loader_train = {
             'obj_file': args.data_path,
             'batch_size': args.batch_size,
-            'epoch_size': 5,
+            'epoch_size': 512,
             'texture_path': args.texture_path,
             'noise_mesh': args.noise_mesh or None
         }
@@ -288,20 +288,20 @@ def train_one_epoch(model: torch.nn.Module,
             y = xyz
 
             #chose the kind of noise   (Can we do so in a more compact way?)
-            if args.target == 'Gaussian':
+            if args.distribution == 'Gaussian':
                 n = torch.randn_like(y[:, :3]) * sigma[:, None]
                 if y.shape[1] != 3:
                     c = (torch.rand_like(y[:, 3:]) - 0.5) / np.sqrt(1/12) * sigma[:, None]
                     n = torch.cat([n, c], dim=1)
-            elif args.target == 'Uniform':
+            elif args.distribution == 'Uniform':
                 n = (torch.rand_like(y) - 0.5) / np.sqrt(1/12) * sigma[:, None]
-            elif args.target == 'Sphere':
+            elif args.distribution == 'Sphere':
                 n = torch.randn_like(y[:, :3])
                 n = torch.nn.functional.normalize(n, dim=1)
                 n /= np.sqrt(1/3)
                 n = n * sigma[:, None]
 
-            elif args.target == "Mesh":
+            elif args.distribution == "Mesh":
                 assert init_noise is not None
                 n = init_noise * sigma[:, None]
             else:
@@ -397,15 +397,15 @@ def inference(args, device):
     model.load_state_dict(torch.load(args.output_dir + '/checkpoint-'+str(args.epochs-1)+'.pth', map_location=device,weights_only=False)['model'], strict=True)
     
     #Sample X_0
-    if args.target == 'Gaussian':
+    if args.distribution == 'Gaussian':
         noise = torch.randn(args.num_points_inference, 3).cuda()
-    elif args.target == 'Uniform':
+    elif args.distribution == 'Uniform':
         noise = (torch.rand(args.num_points_inference, 3).cuda() - 0.5) / np.sqrt(1/12)
-    elif args.target == 'Sphere':
+    elif args.distribution == 'Sphere':
         n = torch.randn(args.num_points_inference, 3).cuda()
         n = torch.nn.functional.normalize(n, dim=1)
         noise = n / np.sqrt(1/3)
-    elif args.target == 'Mesh':
+    elif args.distribution == 'Mesh':
         assert args.noise_mesh is not None
         noise, _ = trimesh.sample.sample_surface(trimesh.load(args.noise_mesh), args.num_points_inference)
         noise = torch.from_numpy(noise).float().cuda()
