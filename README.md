@@ -26,11 +26,24 @@ Contact [Biao Zhang](mailto:biao.zhang@kaust.edu.sa) ([@1zb](https://github.com/
 
 ## :blue_book: Citation
 
+arxiv
 ```bibtex
 @article{zhang2024geometry,
   title={Geometry Distributions},
   author={Zhang, Biao and Ren, Jing and Wonka, Peter},
   journal={arXiv preprint arXiv:2411.16076},
   year={2024}
+}
+```
+
+ICCV
+```
+@InProceedings{Zhang_2025_ICCV,
+    author    = {Zhang, Biao and Ren, Jing and Wonka, Peter},
+    title     = {Geometry Distributions},
+    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+    month     = {October},
+    year      = {2025},
+    pages     = {1495-1505}
 }
 ```
